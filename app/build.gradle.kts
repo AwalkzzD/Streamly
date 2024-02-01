@@ -59,7 +59,4 @@ dependencies {
 //    recycler view for displaying data
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.recyclerview:recyclerview-selection:1.1.0") // For control over item selection of both touch and mouse driven selection
-
-//    circular seekbar
-    implementation("me.tankery.lib:circularSeekBar:1.4.2")
 }
