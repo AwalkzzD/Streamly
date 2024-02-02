@@ -2,6 +2,7 @@ package com.example.streamly.adapter
 
 import android.app.Activity
 import android.media.MediaPlayer
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,32 +18,95 @@ import jp.wasabeef.picasso.transformations.BlurTransformation
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-
-class ResultDataAdapter(val context: Activity, val dataList: List<Data>) :
+class ResultDataAdapter(private val context: Activity, private val dataList: List<Data>) :
     RecyclerView.Adapter<ResultDataAdapter.ResultViewHolder>() {
+
+    private val mediaPlayer = MediaPlayer()
+    private val TAG = "ResultDataAdapter"
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ResultViewHolder {
         val itemView = LayoutInflater.from(context).inflate(R.layout.song_card_item, parent, false)
         return ResultViewHolder((itemView))
     }
 
-    override fun onBindViewHolder(holder: ResultViewHolder, position: Int) {
-        val currentSong = dataList[position]
-        var mediaPlayer = MediaPlayer.create(context, currentSong.preview.toUri())
+    override fun onViewDetachedFromWindow(holder: ResultViewHolder) {
+        super.onViewDetachedFromWindow(holder)
+        Log.d("TAG", "onViewDetachedFromWindow: Page Changed")
+        holder.playPauseBtn.setImageResource(R.drawable.play_icon)
+    }
 
-        Picasso.get().load(currentSong.album.cover_big).transform(
+
+    override fun onBindViewHolder(holder: ResultViewHolder, position: Int) {
+//        val currentSong = dataList[position]
+
+        Log.d(TAG, "onBindViewHolder: Data List Size = " + dataList.size)
+
+        if (mediaPlayer != null) {
+            mediaPlayer.stop()
+            mediaPlayer.reset()
+        }
+
+        with(holder) {
+            with(dataList[position]) {
+                Picasso.get().load(this.album.cover_big).transform(
+                    mutableListOf(
+                        BlurTransformation(context, 2, 1),
+                    )
+                ).into(songPoster)
+
+                songTitle.text = this.title_short
+                mediaPlayer.setDataSource(context, this.preview.toUri())
+                /*                mediaPlayer.setDataSource(
+                                    context, dataList[getItemViewType(position)].preview.toUri()
+                                )*/
+
+                Log.d("TAG", "onBindViewHolder: " + this.title_short)
+
+                songArtist.text = this.artist.name
+                playPauseBtn.tag = R.drawable.play_icon
+
+                playPauseBtn.setOnClickListener {
+                    if (playPauseBtn.tag == R.drawable.play_icon) {
+                        GlobalScope.launch {
+                            mediaPlayer.prepare()
+                            mediaPlayer.setOnPreparedListener {
+                                mediaPlayer.start()
+                            }
+                        }
+                        playPauseBtn.tag = R.drawable.pause_icon
+                        playPauseBtn.setImageResource(R.drawable.pause_icon)
+                    } else {
+                        GlobalScope.launch {
+                            if (mediaPlayer.isPlaying) {
+                                mediaPlayer.pause()
+                            }
+                        }
+                        playPauseBtn.tag = R.drawable.play_icon
+                        playPauseBtn.setImageResource(R.drawable.play_icon)
+                    }
+
+                }
+            }
+        }
+
+
+        /*Picasso.get().load(currentSong.album.cover_big).transform(
             mutableListOf(
                 BlurTransformation(context, 2, 1),
             )
         ).into(holder.songPoster)
+
+        mediaPlayer.setDataSource(context, currentSong.preview.toUri())
+        Log.d("TAG", "onBindViewHolder: " + currentSong.title_short)
+
         holder.songTitle.text = currentSong.title_short
         holder.songArtist.text = currentSong.artist.name
 
         holder.playPauseBtn.tag = R.drawable.play_icon
-
         holder.playPauseBtn.setOnClickListener {
             if (holder.playPauseBtn.tag == R.drawable.play_icon) {
                 GlobalScope.launch {
+                    mediaPlayer.prepare()
                     mediaPlayer.start()
                 }
                 holder.playPauseBtn.tag = R.drawable.pause_icon
@@ -50,21 +114,17 @@ class ResultDataAdapter(val context: Activity, val dataList: List<Data>) :
             } else {
                 GlobalScope.launch {
                     if (mediaPlayer.isPlaying) {
-                        mediaPlayer.pause();
+                        mediaPlayer.pause()
                     }
                 }
                 holder.playPauseBtn.tag = R.drawable.play_icon
                 holder.playPauseBtn.setImageResource(R.drawable.play_icon)
             }
 
-        }
-
-
+        }*/
     }
 
-    override fun getItemCount(): Int {
-        return dataList.size
-    }
+    override fun getItemCount(): Int = dataList.size
 
     class ResultViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val songPoster: ImageView
@@ -76,11 +136,7 @@ class ResultDataAdapter(val context: Activity, val dataList: List<Data>) :
             songPoster = itemView.findViewById(R.id.songPoster)
             songTitle = itemView.findViewById(R.id.songTitle)
             songArtist = itemView.findViewById(R.id.songArtist)
-//            playBtn = itemView.findViewById(R.id.playBtn)
-//            pauseBtn = itemView.findViewById(R.id.pauseBtn)
             playPauseBtn = itemView.findViewById(R.id.playPauseBtn)
         }
-
     }
-
 }

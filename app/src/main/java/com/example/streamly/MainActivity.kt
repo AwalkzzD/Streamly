@@ -29,7 +29,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Locale
 
-
 class MainActivity : AppCompatActivity() {
 
     private lateinit var songRecyclerView: RecyclerView
@@ -38,7 +37,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var searchBtn: ImageButton
     private lateinit var retrofitBuilder: DeezerApi
     private var SEARCH_QUERY = "arijit singh"
-    private val REQUEST_CODE_SPEECH_INPUT = 1
     private lateinit var searchQuery: EditText
 
     private val result =
@@ -57,13 +55,12 @@ class MainActivity : AppCompatActivity() {
 
         bottomDialog = BottomSheetDialog(this@MainActivity)
         val bottomView = layoutInflater.inflate(R.layout.bottom_dialog, null)
-        bottomDialog.setCancelable(false)
+        bottomDialog.setCancelable(true)
         bottomDialog.setContentView(bottomView)
 
         searchBtn = findViewById(R.id.searchAction)
         searchBtn.setOnClickListener {
             bottomDialog.show()
-            Log.d("TAG: Bottom Sheet", "onCreate: Bottom Sheet")
             searchQuery = bottomView.findViewById<EditText>(R.id.searchQry)
             val searchBtn = bottomView.findViewById<Button>(R.id.searchBtn)
             val voiceTypingBtn = bottomView.findViewById<ImageButton>(R.id.voiceTyping)
@@ -115,7 +112,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchSongs(searchQry: String) {
-
         lifecycleScope.launch {
             retrofitBuilder =
                 Retrofit.Builder().baseUrl("https://deezerdevs-deezer.p.rapidapi.com/")
@@ -132,10 +128,10 @@ class MainActivity : AppCompatActivity() {
                     if (mProgressDialog.isShowing) {
                         mProgressDialog.dismiss()
                     }
-
+                    Log.d("TAG", "onResponse: " + response.body()?.data!!.toString())
                     songAdapter = ResultDataAdapter(this@MainActivity, response.body()?.data!!)
                     songRecyclerView.adapter = songAdapter
-                    songAdapter.notifyDataSetChanged()
+
                 }
 
                 override fun onFailure(call: Call<ResultData?>, t: Throwable) {
