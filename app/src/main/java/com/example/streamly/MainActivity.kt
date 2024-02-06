@@ -3,6 +3,7 @@ package com.example.streamly
 import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Intent
+import android.os.Build.VERSION_CODES.R
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.util.Log
@@ -21,6 +22,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.carousel.CarouselLayoutManager
 import com.google.android.material.carousel.CarouselSnapHelper
 import com.google.android.material.carousel.FullScreenCarouselStrategy
+import com.google.gson.GsonBuilder
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -128,7 +130,12 @@ class MainActivity : AppCompatActivity() {
                     if (mProgressDialog.isShowing) {
                         mProgressDialog.dismiss()
                     }
-                    Log.d("TAG", "onResponse: " + response.body()?.data!!.toString())
+
+                    Log.d(
+                        "TAG",
+                        "onResponse: " + GsonBuilder().setPrettyPrinting().create()
+                            .toJson(response.body()?.data!!)
+                    )
                     songAdapter = ResultDataAdapter(this@MainActivity, response.body()?.data!!)
                     songRecyclerView.adapter = songAdapter
 

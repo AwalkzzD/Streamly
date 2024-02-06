@@ -37,14 +37,12 @@ class ResultDataAdapter(private val context: Activity, private val dataList: Lis
 
 
     override fun onBindViewHolder(holder: ResultViewHolder, position: Int) {
-//        val currentSong = dataList[position]
-
         Log.d(TAG, "onBindViewHolder: Data List Size = " + dataList.size)
 
-        if (mediaPlayer != null) {
-            mediaPlayer.stop()
-            mediaPlayer.reset()
-        }
+//        if (mediaPlayer != null) {
+        mediaPlayer.stop()
+        mediaPlayer.reset()
+//        }
 
         with(holder) {
             with(dataList[position]) {
@@ -55,7 +53,6 @@ class ResultDataAdapter(private val context: Activity, private val dataList: Lis
                 ).into(songPoster)
 
                 songTitle.text = this.title_short
-                mediaPlayer.setDataSource(context, this.preview.toUri())
                 /*                mediaPlayer.setDataSource(
                                     context, dataList[getItemViewType(position)].preview.toUri()
                                 )*/
@@ -66,6 +63,9 @@ class ResultDataAdapter(private val context: Activity, private val dataList: Lis
                 playPauseBtn.tag = R.drawable.play_icon
 
                 playPauseBtn.setOnClickListener {
+                    /*Log.e("clcik====>",position.toString())
+                    Log.e("Song URL====>",this.preview.toUri().toString())*/
+                    mediaPlayer.setDataSource(context, this.preview.toUri())
                     if (playPauseBtn.tag == R.drawable.play_icon) {
                         GlobalScope.launch {
                             mediaPlayer.prepare()
@@ -88,40 +88,6 @@ class ResultDataAdapter(private val context: Activity, private val dataList: Lis
                 }
             }
         }
-
-
-        /*Picasso.get().load(currentSong.album.cover_big).transform(
-            mutableListOf(
-                BlurTransformation(context, 2, 1),
-            )
-        ).into(holder.songPoster)
-
-        mediaPlayer.setDataSource(context, currentSong.preview.toUri())
-        Log.d("TAG", "onBindViewHolder: " + currentSong.title_short)
-
-        holder.songTitle.text = currentSong.title_short
-        holder.songArtist.text = currentSong.artist.name
-
-        holder.playPauseBtn.tag = R.drawable.play_icon
-        holder.playPauseBtn.setOnClickListener {
-            if (holder.playPauseBtn.tag == R.drawable.play_icon) {
-                GlobalScope.launch {
-                    mediaPlayer.prepare()
-                    mediaPlayer.start()
-                }
-                holder.playPauseBtn.tag = R.drawable.pause_icon
-                holder.playPauseBtn.setImageResource(R.drawable.pause_icon)
-            } else {
-                GlobalScope.launch {
-                    if (mediaPlayer.isPlaying) {
-                        mediaPlayer.pause()
-                    }
-                }
-                holder.playPauseBtn.tag = R.drawable.play_icon
-                holder.playPauseBtn.setImageResource(R.drawable.play_icon)
-            }
-
-        }*/
     }
 
     override fun getItemCount(): Int = dataList.size
